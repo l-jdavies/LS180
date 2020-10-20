@@ -1,10 +1,10 @@
 1. Write a SQL statement that will create the following table, people:
 
-name | age | occupation
---------------------
-Abby | 34 | biologist
-Mu'nisah | 26 | NULL
-Mirabelle | 40 | contractor
+| name | age | occupation |
+| ---- | --- | --- |
+| Abby | 34 | biologist |
+| Mu'nisah | 26 | NULL |
+| Mirabelle | 40 | contractor |
 
 ```
 CREATE TABLE people (
@@ -34,13 +34,13 @@ LIMIT 1 OFFSET 1;
 
 4. Write a SQL statement that will create a table named birds that can hold the following values:
 
-name | length | wingspan | family | extinct
-------------------------------------------
-Spotted Towhee | 21.6 | 26.7 | Emberizidae | f
-American Robin | 25.5 | 36.0 | Turdidae | f
-Greater Koa Finch | 19.0 | 24.0 | Fringillidae | t
-Carolina Parakeet | 33.0 | 55.8 | Psittacidae | t
-Common Kestrel | 35.5 | 73.5 | Falconidae | f
+| name | length | wingspan | family | extinct |
+| --- | --- | --- |--- | --- |
+| Spotted Towhee | 21.6 | 26.7 | Emberizidae | f |
+| American Robin | 25.5 | 36.0 | Turdidae | f |
+| Greater Koa Finch | 19.0 | 24.0 | Fringillidae | t |
+| Carolina Parakeet | 33.0 | 55.8 | Psittacidae | t |
+| Common Kestrel | 35.5 | 73.5 | Falconidae | f |
 
 ```
 CREATE TABLE birds (
@@ -79,11 +79,11 @@ Note: should have used `round(avg(wingspan), 1)` to round the result to 1 dp.
 
 8. Write a SQL statement to create the table shown below, menu_items:
 
-item | prep_time | ingredient_cost | sales | menu_price
--------------------------------------------------------
-omelette | 10 | 1.50 | 182 | 7.99
-tacos | 5 | 2.00 | 254 | 8.99
-oatmeal | 1 | 0.50 | 79 | 5.99
+| item | prep_time | ingredient_cost | sales | menu_price |
+| --- | --- | --- | ---- | --- | 
+| omelette | 10 | 1.50 | 182 | 7.99 |
+| tacos | 5 | 2.00 | 254 | 8.99 |
+| oatmeal | 1 | 0.50 | 79 | 5.99 |
 
 ```
 CREATE TABLE menu_items (
