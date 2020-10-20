@@ -519,3 +519,515 @@ ALTER COLUMN max_weight TYPE decimal(10,4);
 ALTER TABLE animals
 ADD CONSTRAINT unique_binomial_name UNIQUE (binomial_name);
 ```
+
+## Inserting data into a table
+
+### Data and DML
+
+The Data Manipulation Language can be used to add, query, change and remove data. Data Manipulation Statements can be categorised into four different types:
+
+- `INSERT` statements - add new data into a database table
+- `SELECT` statements - also referred to as queries; retrieve existing data from database tables.
+- `UPDATE` statements - update existing data in a database table.
+- `DELETE` statements - delete existing data from a database table.
+
+### CRUD
+
+The term CRUD is a commonly used acronym in the database world. The letters in CRUD stand for the words CREATE, READ, UPDATE, and DELETE. These four words are analogous to our `INSERT`, `SELECT`, `UPDATE` and `DELETE` statements, and we can think of these statements as performing their equivalent CRUD operations. Web applications whose main purpose is to provide an interface to perform these operations are often referred to as 'CRUD apps'.
+
+### Insert statement syntax
+
+General form of an `INSERT` SQL statement:
+
+```sql
+INSERT INTO table_name (column1_name, column2_name...)
+VALUES (data_for_column1, data_for_column2...);
+```
+
+Three pieces of information are required when using an `INSERT` statement:
+
+1. Name of the table the data should be stored in.
+2. Names of the columns the data should be added to.
+3. The data that should be stored in the columns.
+
+When inserting data into a table, you may specify all the columns from the table, just a few of them, or none at all. Depending on how your table is structured, and how your data row is ordered, not specifying columns can sometimes lead to unexpected results or errors, so it is generally best to specify which columns you want to insert data into. When specifying columns, for each column specified you *must* supply a value for it in the `VALUES` clause, otherwise you'll get an error back. If you don't specify a column for data insertion, then null or a default value will be added to the record you wish to store instead.
+
+### Adding multiple rows
+
+Multiple rows of data can be added in a single `INSERT` statement:
+
+```sql
+INSERT INTO users (full_name)
+VALUES ('Jane Smith'), ('Harry Potter');
+```
+
+### CHECK constraints
+
+`CHECK` constraints can be used to limit the type of data that can be included in a column, based on a condition that is set in the constraint. Anytime new data is added to a table, the data is validated against the constraint.
+
+For example, if we want to check that a user's name isn't an empty string:
+
+```sql
+ALTER TABLE users ADD CHECK (full_name <> '');
+```
+
+### Exercises
+
+1. Make sure you are connected to the `encyclopedia` database. Add the following data to the `countries` table:
+
+[Untitled](https://www.notion.so/d979968bf166451a8965e4f4dcdcb8ce)
+
+```sql
+\connect encyclopedia
+
+INSERT INTO countries (name, capital, population)
+VALUES ('France', 'Paris', 67158000);
+```
+
+2. Now add the following additional data to the countries table:
+
+```sql
+INSERT INTO countries (name, capital, population)
+VALUES ('USA', 'Washington DC', 325365189), ('Germany', 'Berlin', 82349400);
+```
+
+3. Add an entry to the `celebrities` table for the singer and songwriter Bruce Springsteen, who was born on September 23rd 1949 and is still alive
+
+```sql
+INSERT INTO celebrities (first_name, last_name, occupation, date_of_birth, deceased)
+VALUES ('Bruce', 'Springsteen', 'Singer, Songwriter', '1949-09-23', false);
+```
+
+## Select queries
+
+Querying databases form the Read part of CRUD operations.
+
+### Select query syntax
+
+General form of a `SELECT` SQL statement:
+
+```sql
+SELECT [*, (column_name)]
+FROM table_name WHERE (condition);
+```
+
+The order that the column names are specified in the `SELECT` statement is the order that the columns will be displayed in the response, rather the 'natural' order of the columns in the original table.
+
+Columns that aren't specified in the column list can still be used in the `WHERE` condition.
+
+### Identifiers and keywords
+
+Keywords are terms such as `SELECT`, `WHERE` etc. that issue instructions to PostgreSQL. 
+
+Identifiers identify tables or columns.
+
+It is best practice to avoid using reserved keywords, such as `year` as identifiers. If this is unavoidable then the reserved word should be placed in double quotes so PostgreSQL knows it is an identifier, not a keyword.
+
+## ORDER BY
+
+`ORDER BY` displays the results of a query in a particular sort order. It can be combined with a `WHERE` query:
+
+```sql
+SELECT (column_name)
+FROM table_name WHERE condition
+ORDER BY column_name DESC/ASC;
+```
+
+When ordering by boolean values, `false` comes before `true` in ascending order.
+
+You can order by multiple columns. In this situation the data will initially be ordered by the first specified column, any data that has identical values for the first column will then be ordered by the second column.
+
+```sql
+SELECT full_name FROM users
+ORDER BY id DESC, enabled DESC;
+```
+
+As with the `WHERE` clause, you can `ORDER BY` a column that isn't included in the column list.
+
+### Operators
+
+Operators are generally used as part of an expression in a `WHERE` clause. Some operators can be grouped into 3 different types:
+
+1. Comparison
+2. Logical
+3. String Matching
+
+There are more operators available within PostgreSQL than will be discussed here.
+
+**Comparison operators**
+
+`<` : less than
+
+`>` : greater than
+
+`<>` : not equal to
+
+`=` : equal to
+
+In addition to comparison operators, there are comparison predicates, which function like operators but have a special syntax. We will just look at two of them - `IS NULL` and `NOT NULL` .
+
+`NULL` in SQL means an unknown value. This means the expression `WHERE column_name = NULL` is invalid, instead the comparison predicate `IS NULL` must be used.
+
+**Logical operators**
+
+Logical operators provide flexibility to expressions. The three logical operators are:
+
+- `AND`
+- `OR`
+- `NOT`
+
+```sql
+SELECT * 
+FROM users
+WHERE full_name = 'Harry Potter' OR 'Sherlock Holmes';
+```
+
+**String Matching Operators**
+
+String matching operators search for a sub-set of the data within a column. For example, if you want to search by surname by the data in the `full_name` column contains both the first and surname. This can be performed using the `LIKE` operator:
+
+```sql
+SELECT *
+FROM users
+WHERE full_name LIKE '%Smith';
+```
+
+`%` character is a wildcard character.
+
+An alternative to `LIKE` is the `SIMILAR TO` which compares the target column to a Regex pattern.
+
+### Exercises
+
+1. Make sure you are connected to the `encyclopedia` database. Write a query to retrieve the population of the USA.
+
+```sql
+SELECT population
+FROM countries
+WHERE name = 'USA';
+```
+
+2. Write a query to return the population and the capital (with the columns in that order) of all the countries in the table.
+
+```sql
+SELECT population, capital
+FROM countries;
+```
+
+3. Write a query to return the names of all the countries ordered alphabetically.
+
+```sql
+SELECT name
+FROM countries
+ORDER BY name DESC;
+```
+
+4. Write a query to return the names and the capitals of all the countries in order of population, from lowest to highest.
+
+```sql
+SELECT name
+FROM countries
+ORDER BY population ASC;
+```
+
+5. Write a query to return the same information as the previous query, but ordered from highest to lowest.
+
+```sql
+SELECT name
+FROM countries
+ORDER BY population DESC;
+```
+
+## More on SELECT
+
+Data can be further filtered by adding `LIMIT`, `OFFSET` and `DISTINCT` clauses to SQL queries.
+
+### LIMIT and OFFSET
+
+Displaying portions of data as separate 'pages' is a user interface pattern used in many web applications, generally referred to as 'pagination'. The `LIMIT` and `OFFSET` clauses of `SELECT` are the base on which pagination is built.
+
+If we only want to view display the results from one user, rather than all users:
+
+```sql
+SELECT * FROM users LIMIT 1;
+```
+
+If we want to display one row of data but skip the first row:
+
+```sql
+SELECT * FROM users LIMIT 1 OFFSET 1;
+```
+
+As well as specific use cases such as pagination, `LIMIT` can also be useful in development when testing our queries. We can use `LIMIT` to get a preview or taste of what data is available or would be returned rather than returning the entire dataset. This is especially useful during development when forming your queries and getting an understanding of the dataset and data quality.
+
+### DISTINCT
+
+`DISTINCT` can be used to only return unique values:
+
+```sql
+SELECT DISTINCT full_name FROM users;
+```
+
+`DISTINCT` can be useful when used in conjunction with SQL functions, such as `count`.
+
+### Functions
+
+Functions are a set of commands included as part of the RDBMS that perform particular operations on fields or data. Some functions provide data transformations that can be applied before returning results. Others simply return information on the operations carried out.
+
+These functions can generally be grouped into different types. Some of the most commonly used types of functions are:
+
+1. String
+2. Date/Time
+3. Aggregate
+
+**String functions**
+
+```sql
+SELECT length(full_name) FROM users;
+```
+
+```sql
+SELECT trim(leading '' from full_name) FROM users;
+```
+
+**Date/ time functions**
+
+```sql
+SELECT date_part('year', last_login) FROM users;
+```
+
+```sql
+/*age function, when passed a single timestamp as an argument 
+* will calculate the time elapsed between the timestamp and now *\
+
+SELECT age(last_login) FROM users;
+```
+
+**Aggregate function**
+
+These functions return a single result from a set of input values.
+
+```sql
+SELECT count(id) FROM users; 
+```
+
+```sql
+SELECT sum(id) FROM users;
+```
+
+```sql
+SELECT min(id) FROM users;
+```
+
+```sql
+SELECT max(id) FROM users;
+```
+
+```sql
+SELECT avg(id) FROM users;
+```
+
+Aggregate functions really start to be useful when grouping table rows together. The way we do that is by using the `GROUP BY` clause.
+
+### GROUP BY
+
+```sql
+SELECT enabled, count(id) FROM users GROUP BY enabled;
+ enabled | count
+---------+-------
+ f       |     1
+ t       |     4
+(2 rows)
+```
+
+One thing to be aware of when using aggregate functions, is that if you include columns in the column list alongside the function then those columns must also be included in a `GROUP BY` clause. For example, both of the following statements would return an error:
+
+```sql
+SELECT enabled, count(id) FROM users;
+SELECT enabled, id, count(id) FROM users GROUP BY enabled;
+```
+
+## Update and delete
+
+### Update data in a table
+
+This is achieved with the `UPDATE` and `DELETE` statements.
+
+General syntax of SQL statement:
+
+```sql
+UPDATE table_name SET [column_name1 = value1, ...]
+WHERE (expression);
+```
+
+### Delete data in table
+
+Sometimes simply updating the data in a row isn't enough to fix a particular data discrepancy, and you need to remove that row altogether. This is where the `DELETE` statement comes in.
+
+The `DELETE` statement is used to remove entire rows from a database table.
+
+```sql
+DELETE FROM table_name WHERE (expression);
+```
+
+ 
+
+### Update vs Delete
+
+One key difference to keep in mind between how `UPDATE` works and how `DELETE` works: with `UPDATE` you can update one or more columns within one or more rows by using the `SET` clause; with `DELETE` you can only delete one or more *entire* rows, and not particular pieces of data from within those rows.
+
+Although it's not possible to *delete* specific values within a row, we can approximate this by using `NULL`. You may remember in an earlier chapter we explained that `NULL` is a special value which actually represents an **unknown value**. By using an `UPDATE` statement to `SET` a specific value to `NULL`, although not *deleting* it as such, we are effectively removing that value.
+
+## Table relationships
+
+### Normalisation
+
+Normalisation is the process of placing data in different tables and creating relationships between them. Normalisation removes duplication and improves data integrity.
+
+Normal forms are a complex set of rules that dictate the extent to which a database is judged to be normalised.
+
+### Database design
+
+Database design involves defining entities to represent different data sets and defining the relationship between those entities.
+
+Entities can often be identified as the major nouns of the system that is being modelled. The relationship between the entities can be modelled with a diagram known as an Entity Relationship Diagram (ERD). An ERD is a graphical representation of entities and their relationship to one another.
+
+### Keys
+
+Relationships between entities are implemented through the use of keys. Keys are a special type of constraint used to establish relationships and uniqueness. They can be used to identify a specific row in the current table or refer to a specific row in another table. The two types of keys that fulfil these roles are primary keys and foreign keys.
+
+### Primary keys
+
+A primary key is a unique identifier for a row of data. A column can only be used as a primary key if it contains data and the data is unique to each row. For this reason, the `id` column is commonly used as a primary key. Any column with `UNIQUE` and `NOT NULL` constraints could be used.
+
+Primary keys need to be explicitly defined:
+
+```sql
+ALTER TABLE users ADD PRIMARY KEY (id);
+```
+
+### Foreign keys
+
+A foreign key allows us to associate a row in one table with a row in another table. This is implemented by setting a column in one table as a foreign key, which references another table's primary key column. This relationship is created using the `REFERENCES` keyword:
+
+```sql
+FOREIGN KEY (foreign_col_name) REFERENCES target_table_name (primary_col_name);
+```
+
+ Creating this reference ensures referential integrity of a relationship.
+
+The specific way in which a foreign key is used as part of a table's schema depends on the type of relationship that is being modelled between the entities. The different types of entity relationships are:
+
+- One to One
+- One to Many
+- Many to Many
+
+### One-to-one
+
+A one-to-one relationship between two entities exists when a particular entity instance exists in one table, and it can have only one associated entity instance in another table.
+
+In the database world, this sort of relationship is implemented like this: the `id` that is the `PRIMARY KEY` of the users table is used as both the `FOREIGN KEY` and `PRIMARY KEY` of the addresses table.
+
+```sql
+/*
+one to one: User has one address
+*/
+
+CREATE TABLE addresses (
+  user_id int, -- Both a primary and foreign key
+  street varchar(30) NOT NULL,
+  city varchar(30) NOT NULL,
+  state varchar(30) NOT NULL,
+  PRIMARY KEY (user_id),
+  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+```
+
+Executing the above SQL statement will create an `addresses` table, and create a relationship between it and the `users` table. Notice the `PRIMARY KEY` and `FOREIGN KEY` clauses at the end of the `CREATE` statement. These two clauses create the constraints that makes the `user_id` the Primary Key of the `addresses` table and also the Foreign Key for the `users` table.
+
+The `user_id` column uses values that exist in the `id` column of the `users` table in order to connect the tables through the foreign key constraint we just created.
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled.png)
+
+### Referential integrity
+
+Referential integrity is a concept which states that table relationships must always be consistent. In the section above the constraints that have been defined for the `addresses` table enforce the one-to-one relationship with the `users` table: a user can only have one address and an address can have only one user. If you try to enter an address for a user that already has an address or add an address for a user that doesn't exist, PostgreSQL will return an error message.
+
+### ON DELETE clause
+
+When defining a foreign key, the clause `ON DELETE CASCADE` can be added. This means if the row being referenced is deleted then the row referencing it is also deleted. Instead of `CASCADE` alternatives such as `SET NULL` or `SET DEFAULT` could be used, which will set a new value for the referencing row, rather than deleting it.
+
+Determining what to do in situations where you delete a row that is referenced by another row is an important design decision, and is part of the concept of maintaining referential integrity. If we don't set such clauses we leave the decision of what to do up to the RDBMS we are using. In the case of PostgreSQL, if we try to delete a row that is being referenced by a row in another table and we have no `ON DELETE` clause for that reference, then an error will be thrown.
+
+### One-to-many
+
+A one-to-many relationship exists between two entities if an entity instance in one of the tables can be associated with multiple records (entity instances) in the other table. The opposite relationship does not exist; that is, each entity instance in the second table can only be associated with one entity instance in the first table.
+
+**Example:** A review belongs to only one book. A book has many reviews.
+
+```sql
+CREATE TABLE books (
+  id serial,
+  title varchar(100) NOT NULL,
+  author varchar(100) NOT NULL,
+  published_date timestamp NOT NULL,
+  isbn char(12),
+  PRIMARY KEY (id),
+  UNIQUE (isbn)
+);
+
+/*
+ one to many: Book has many reviews
+*/
+
+CREATE TABLE reviews (
+  id serial,
+  book_id integer NOT NULL,
+  reviewer_name varchar(255),
+  content varchar(255),
+  rating integer,
+  published_date timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+```
+
+The `FOREIGN KEY` column, `book_id` is not bound by the `UNIQUE` constraint of our `PRIMARY KEY` and so the same value from the `id` column of the `books` table can appear in this column more than once. In other words a book can have many reviews.
+
+Data needs to be added into the `books` table before data is added to the `reviews` table. This is because a column in `reviews` references data in `books` and so data needs to be in `books` for it to be referenced.
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%201.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%201.png)
+
+### Many-to-many
+
+A many-to-many relationship exists between two entities if for one entity instance there may be multiple records in the other table, and vice versa.
+
+**Example:** A user can check out many books. A book can be checked out by many users (over time).
+
+In order to implement this relationship a cross-reference table is required. This table has two foreign keys, each of which references the primary key of one of the tables for which we want to create this relationship.
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%202.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%202.png)
+
+Here, the `user_id` column in `checkouts` references the `id` column in `users`, and the `book_id` column in `checkouts` references the `id` column in `books`. Each row of the `checkouts` table uses these two Foreign Keys to create an association between rows of users and books.
+
+```sql
+CREATE TABLE checkouts (
+  id serial,
+  user_id int NOT NULL,
+  book_id int NOT NULL,
+  checkout_date timestamp,
+  return_date timestamp,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+```
+
+You may have noticed that our table contains a couple of other columns `checkout_date` and `return_date`. While these aren't necessary to create the relationship between the `users` and `books` table, they can provide additional context to that relationship. Attributes like a checkout date or return date don't pertain specifically to users or specifically to books, but to the *association* between a user and a book.
+
+This kind of additional context can be useful within the business logic of the application using our database. For example, in order to prevent more than one user trying to check out the same book at the same time, the app could determine which books are currently checked out by querying those that have a value in the `checkout_date` column of the `checkouts` table but where the `return_date` is set to `NULL`.
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%203.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%203.png)
+
+## SQL joins
+
+TBD
