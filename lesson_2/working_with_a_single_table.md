@@ -1,9 +1,11 @@
 1. Write a SQL statement that will create the following table, people:
+
 name | age | occupation
 --------------------
 Abby | 34 | biologist
 Mu'nisah | 26 | NULL
 Mirabelle | 40 | contractor
+
 ```
 CREATE TABLE people (
   name text NOT NULL,
@@ -31,6 +33,7 @@ LIMIT 1 OFFSET 1;
 ```
 
 4. Write a SQL statement that will create a table named birds that can hold the following values:
+
 name | length | wingspan | family | extinct
 ------------------------------------------
 Spotted Towhee | 21.6 | 26.7 | Emberizidae | f
@@ -75,6 +78,7 @@ SELECT avg(wingspan), min(wingspan), max(wingspan)  FROM birds;
 Note: should have used `round(avg(wingspan), 1)` to round the result to 1 dp.
 
 8. Write a SQL statement to create the table shown below, menu_items:
+
 item | prep_time | ingredient_cost | sales | menu_price
 -------------------------------------------------------
 omelette | 10 | 1.50 | 182 | 7.99
