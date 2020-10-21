@@ -921,6 +921,8 @@ The specific way in which a foreign key is used as part of a table's schema depe
 - One to Many
 - Many to Many
 
+The same table can have multiple foreign keys, depending on its relationship with other tables.
+
 ### One-to-one
 
 A one-to-one relationship between two entities exists when a particular entity instance exists in one table, and it can have only one associated entity instance in another table.
@@ -1030,4 +1032,127 @@ This kind of additional context can be useful within the business logic of the a
 
 ## SQL joins
 
-TBD
+A SQL `JOIN` is how queries across multiple tables are handled. `JOIN` clauses link two tables together in a manner that is usually determined by the keys that define the relationship between the two tables. Different JOINs exist, each returning a different result.
+
+### JOIN syntax
+
+**General syntax**
+
+```sql
+SELECT [table_name.column_name1, table_name.column_name2,..] FROM table_name1
+join_type JOIN table_name2 ON (join_condition);
+```
+
+For the second part of the statement, `table_name1 join_type JOIN table_name2 ON (join_condition)` PostgreSQL needs the following information:
+
+- The name of the first table to join
+- The type of join to use
+- The name of the second table to join
+- The join condition.
+
+A join condition defines the logic by which a row in one table is joined to a row in another table. Generally, a join condition is created using the primary key of one table and the foreign key of the second table.
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%204.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%204.png)
+
+These two tables could be joined using the following statement:
+
+```sql
+SELECT colors.color, shape.shapes 
+FROM colors 
+JOIN shapes ON color.id = shapes.color_id;
+```
+
+Within the second part of this query, `colors JOIN shapes ON [colors.id](http://colors.id/) = shapes.color_id`, the join condition will look at each `id` value in the `colors` table and attempt to match it with a `color_id` value in the `shapes` table. If there is a match then those two rows are joined together to form a new row in a virtual table known as a join table. Since the `id` `1` for the color `Red` appears twice in the `color_id` column of our `shapes` table, this row of the `colors` table appears twice in our virtual join table, joined to both `Square` and `Star`. Since the `id` `3` for the color `Orange` does not appear at all in the `color_id` column of our `shapes` table, this row of the `colors` table is omitted completely from our virtual join table.
+
+The join table will look like this:
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%205.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%205.png)
+
+From this virtual join table the `SELECT colors.color, shape.shapes 
+FROM` part of the statement can be executed and the returned data would look like this:
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%206.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%206.png)
+
+`JOIN`s work by comparing a value from the first table with a value from the second table. If the join condition evaluates to true, when comparing the two values, then the two rows are joined. The values used in the comparison are usually a primary key and a foreign key.
+
+### `INNER JOIN`
+
+An `INNER JOIN` creates an intersection between the two tables and returns a results table that contains rows in which there is a match between the values stored in the columns specified in the join condition.
+
+An `INNER JOIN` is the most commonly used type of join and is the type of join that is performed if a join type isn't specified in a PostgreSQL statement. 
+
+### `LEFT JOIN`
+
+`LEFT OUTER JOIN` also known as a `LEFT JOIN` takes all the rows in the table specified at the left of the `LEFT JOIN` query and joins them with table specified on the right of the join query. The `JOIN` is performed using the join condition specified and the returned result will contain all of the rows from the `LEFT` table, even if there aren't any matching rows in the right table.
+
+### `RIGHT JOIN`
+
+A `RIGHT OUTER JOIN` works with the same principle as the `LEFT JOIN` but the tables are reversed, in other words all of the rows from the table specified to the right of the join query are included in the returned result.
+
+```sql
+ SELECT reviews.book_id, reviews.content,
+       reviews.rating, reviews.published_date,
+       books.id, books.title, books.author
+FROM reviews RIGHT JOIN books ON (reviews.book_id = books.id);
+```
+
+![Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%207.png](Introduction%20to%20SQL%20book%2049f1dedcb6b94da293fee621d683a7c0/Untitled%207.png)
+
+`FULL JOIN`
+
+A `FULL JOIN` also referred to as a `FULL OUTER JOIN` will return a result that contains all the rows from both tables. For rows in which the join condition is met, the two tables are joined. Rows in which the join condition is not met will have `NULL` values in the rows of the other table.
+
+`CROSS JOIN`
+
+Returns all possible combination of rows from the two joined tables. As all row combinations are returned a `ON` clause isn't required.
+
+```sql
+sql_book=# SELECT * FROM users CROSS JOIN addresses;
+```
+
+### Multiple joins
+
+Multiple tables can be joined in a `SELECT` statement by adding multiple `JOIN` clauses, providing there is a logical relationship between the multiple tables.
+
+```sql
+SELECT users.full_name, books.title, checkouts.checkout_date
+FROM users
+INNER JOIN checkouts ON (users.id = checkouts.user_id)
+INNER JOIN books ON (books.id = checkouts.book_id);
+```
+
+An `INNER JOIN` is performed between `users` and `checkouts` using the primary key from `users` and a foreign key from `checkouts` . Then an `INNER JOIN` is performed between `checkouts` and `books` using the primary key from `books` and a different foreign key from `checkouts` .
+
+## Aliasing
+
+Aliasing is when a different name is specified for a table (usually the first letter of the table) or column and the new name is referenced in other parts of the query, to form a more concise syntax. For example:
+
+```sql
+SELECT u.full_name, b.title, c.checkout_date
+FROM users AS u
+INNER JOIN checkouts AS c ON (u.id = c.user_id)
+INNER JOIN books AS b ON (b.id = c.book_id);
+```
+
+We can even use a shorthand for aliasing by leaving out the `AS` keyword entirely. `FROM users u` and `FROM users AS u` are equivalent SQL clauses.
+
+## Subqueries
+
+Subqueries can be used as an alternative to using `JOIN`s when working with multiple tables. A subquery is when the results from one query are used as a condition in a second query. This is called nesting and the nested query is referred to as a subquery.
+
+```sql
+sql_book=# SELECT u.full_name FROM users u
+sql_book-# WHERE u.id NOT IN (SELECT c.user_id FROM checkouts c);
+  full_name
+-------------
+ Harry Potter
+(1 row)
+```
+
+The returned result from the subquery `SELECT c.user_id FROM checkouts c` is used as part of the `WHERE u.id NOT IN` condition of the initial `SELECT` query.
+
+PostgreSQL provides a number of expressions that can be used specifically with sub-queries, such as `IN`, `NOT` `IN`, `ANY`, `SOME`, and `ALL`. These all work slightly differently, but essentially they all compare values to the results of a subquery.
+
+### Subqueries vs joins
+
+You can usually get the same result from using either a subquery or a `JOIN` but `JOIN`s are usually faster.
