@@ -18,7 +18,7 @@ CREATE TABLE tablename (
 );
 ```
 
-Initially, a `SEQUENCE` is created, which is a relation that recalls the last integer it created and will increment the previous integer by 1 when a new `tablename_colname_seq` value is generated. The value of this sequence is accessed using `nextval` and once an integer has been returned by `nextval` it wont be returned again, regardless of how the integer was utilised. 
+Initially, a `SEQUENCE` is created, which is a relation that recalls the last integer it created and will increment this integer by the value specified when the `SEQUENCE` was created (default 1) when a new `tablename_colname_seq` value is generated. The value of this sequence is accessed using `nextval` and once an integer has been returned by `nextval` it wont be returned again, regardless of how the integer was utilised. 
 
 The values used as a key also need to be unique otherwise the key cannot be used as a unique identifier. 
 
